@@ -17,15 +17,25 @@ def send_mesg(who, text):
         bot.messages.send(peer_id=who, message=re.sub('{\w*\S*\w*}', "", text), random_id=random.randint(0, 200000), attachment=attach[0][1:-1])
     else:
         bot.messages.send(peer_id=who, message=text, random_id=random.randint(0, 200000))
-
+def forward_mesg(who, id):
+    bot.messages.send(peer_id=who, random_id=random.randint(0, 200000), forward_messages=str(id)+",")
 def init_simple_command():
     file = open('simple_command.db', 'rb')
     simple_command = pickle.load(file)
     file.close()
     return simple_command
+def init_collection():
+    file = open('collection.db', 'rb')
+    collection = pickle.load(file)
+    file.close()
+    return collection
 
 def send_list(who):
     send_mesg(who, "Список команд:" + "\n" +"\n".join(simple_command.keys()))
+
+def send_collection(who):
+    send_mesg(who, "Список мемасиков с Дружко:" + "\n" +"\n".join(collection.keys()))
+
 
 def send_wiki_info(who, text):
     answ=" ".join(text)
@@ -56,6 +66,13 @@ def add_simple_command(mesg):
        simple_command[mesg[1]] = " ".join(mesg[2:])
        file = open('simple_command.db', 'wb')
        pickle.dump(simple_command, file)
+       file.close()
+
+def add_collection_mesg(mesg):
+   if(len(mesg) == 3):
+       collection[mesg[1]] = mesg[2]
+       file = open('collection.db', 'wb')
+       pickle.dump(collection, file)
        file.close()
 
 def send_fuck(who, person, flag_self=0):
@@ -103,9 +120,12 @@ def get_poem(who):
 def main():
     global bot
     global simple_command
+    global collection
     bot = auth_vk('5419077', "89851906212", "dicks228", 'wall,messages,photos,audio')
     simple_command = {}
     simple_command = init_simple_command()
+    collection = {}
+    collection = init_collection()
     error_message = "Упс! Что то пошло не так... Попробуйте повторить запрос. Если эта ошибка происходит постоянно, пожалуйста, свяжитесь с vk.com/id96494615 для устранения проблеммы"
     print("Ready!")
     while (True):
@@ -193,6 +213,31 @@ def main():
                     print("Ошибка при похвальбе")
                     bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
                     continue
+            if (mesg[6].split(" ")[0] == "/добавить_кол"):
+                try:
+                    add_collection_mesg(mesg[6].split(" "))
+                    continue
+                except Exception:
+                    print("Ошибка при добавлении команды")
+                    bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
+                    continue
+            if (mesg[6] in collection):
+                try:
+                    forward_mesg(mesg[3], collection[mesg[6]])
+                    continue
+                except Exception:
+                    print("Ошибка при отправке команды")
+                    bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
+                    continue
+
+            if (mesg[6].split(" ")[0] == "/коллекция"):
+                try:
+                    send_collection(mesg[3])
+                    continue
+                except Exception:
+                   print("Ошибка при отправке списка")
+                   bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
+                   continue
 
 if __name__ == '__main__':
     main()
