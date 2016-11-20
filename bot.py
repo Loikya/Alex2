@@ -117,8 +117,22 @@ def get_poem(who):
     poem=poem['content']
     bot.messages.send(peer_id=who, random_id=random.randint(0, 200000), message=poem)
 
+def send_private_mesg(from_who, who, mesg):
+    id = 0
+    m = pymorphy2.MorphAnalyzer()
+    name = m.parse(who)[0].normal_form
+    name = name[0].upper() + name[1:]
+
+    if name not in users:
+        bot.messages.send(peer_id=from_who, random_id=random.randint(0, 200000), message="Имя не найдено")
+    else:
+        id = users[name]
+        bot.messages.send(peer_id=id, random_id=random.randint(0, 200000), message=mesg)
+        bot.messages.send(peer_id=from_who, random_id=random.randint(0, 200000), message="Отправлено")
+
 def main():
     global bot
+    global users
     global simple_command
     global collection
     bot = auth_vk('5419077', "89851906212", "dicks228", 'wall,messages,photos,audio')
@@ -126,6 +140,12 @@ def main():
     simple_command = init_simple_command()
     collection = {}
     collection = init_collection()
+    users ={"Паша": 222870201, "Артем": 26140945,
+            "Кирилл": 274280666, "Саше": 36729611,
+            "Ксюша": 100669972, "Лиза": 89286618,
+            "Наст": 17513023, "Антон": 23398752,
+            "Ян": 3582228, "Саша":36729611,
+            "Настя": 17513023, "Яна": 3582228}
     error_message = "Упс! Что то пошло не так... Попробуйте повторить запрос. Если эта ошибка происходит постоянно, пожалуйста, свяжитесь с vk.com/id96494615 для устранения проблеммы"
     print("Ready!")
     while (True):
@@ -226,7 +246,7 @@ def main():
                     forward_mesg(mesg[3], collection[mesg[6]])
                     continue
                 except Exception:
-                    print("Ошибка при отправке команды")
+                    print("Ошибка при отправке видосика")
                     bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
                     continue
 
@@ -235,9 +255,17 @@ def main():
                     send_collection(mesg[3])
                     continue
                 except Exception:
-                   print("Ошибка при отправке списка")
+                   print("Ошибка при отправке списка видосиков")
                    bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
                    continue
+            if (mesg[6].split(" ")[0] == "/отправить"):
+                try:
+                    send_private_mesg(mesg[3], mesg[6].split(" ")[1], " ".join(mesg[6].split(" ")[2:]))
+                    continue
+                except Exception:
+                    print("Ошибка при отправке приватного сообщения")
+                    bot.messages.send(peer_id=mesg[3], message=error_message, random_id=random.randint(0, 200000))
+                    continue
 
 if __name__ == '__main__':
     main()
