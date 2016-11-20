@@ -127,11 +127,8 @@ def send_private_mesg(from_who, who, mesg):
         bot.messages.send(peer_id=from_who, random_id=random.randint(0, 200000), message="Имя не найдено")
     else:
         id = users[name]
-        time.sleep(0.5)
         bot.messages.send(peer_id=id, random_id=random.randint(0, 200000), message=mesg)
-        time.sleep(0.5)
         bot.messages.send(peer_id=from_who, random_id=random.randint(0, 200000), message="Отправлено")
-        time.sleep(0.5)
 
 def main():
     global bot
