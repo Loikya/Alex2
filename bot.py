@@ -135,7 +135,7 @@ def main():
     global users
     global simple_command
     global collection
-    bot = auth_vk('5419077', "89851906212", "dicks228", 'wall,messages,photos,audio')
+    bot = auth_vk('5419077', "89851906212", "228dicks228", 'wall,messages,photos,audio,offline')
     simple_command = {}
     simple_command = init_simple_command()
     collection = {}
